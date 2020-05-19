@@ -1,7 +1,4 @@
 Todo:
 
--Get the dictionary created
--put the BFS algorithm into the pygame while loop
-- create an arbitrary start and end point
-- hook up the algorithm to that start and end point
-
+- Add reset button
+- Add BFS selector button (for future)
