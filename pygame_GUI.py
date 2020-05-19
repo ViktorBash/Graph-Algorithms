@@ -43,28 +43,8 @@ def create_grid():
             grid_to_create[row].append("WHITE")  # Append a cell
     return grid_to_create
 
+
 grid = create_grid()
-# # visits all the nodes of a graph (connected component) using BFS
-# def bfs_connected_component(graph, start):
-#     # keep track of all visited nodes
-#     explored = []
-#     # keep track of nodes to be checked
-#     queue = [start]
-#
-#     # keep looping until there are nodes still to be checked
-#     while queue:
-#         # pop shallowest node (first node) from queue
-#         node = queue.pop(0)
-#         if node not in explored:
-#             # add node to list of checked nodes
-#             explored.append(node)
-#             neighbours = graph[node]
-#
-#             # add neighbours of node to queue
-#             for neighbour in neighbours:
-#                 queue.append(neighbour)
-#     return explored
-# print(bfs_connected_component(graph, 'A'))  # returns ['A', 'B', 'C', 'E', 'D', 'F', 'G']
 
 
 # Setup for PyGame
@@ -76,35 +56,21 @@ WIDTH = 30  # Width of cell
 HEIGHT = 30  # Height of cell
 MARGIN = 1  # Margin between each cell
 
+pygame.init()  # Initialize Pygame
+WINDOW_SIZE = [697, 497]  # Set dimensions of screen
+screen = pygame.display.set_mode(WINDOW_SIZE)  # Create screen with dimensions
+pygame.display.set_caption("Array Backed Grid")  # Set title of window
 
-
-# Set row 1, cell 5 to one. (Remember rows and
-# column numbers start at zero.)
-grid[1][5] = 1
-
-# Initialize pygame
-pygame.init()
-
-# Set the HEIGHT and WIDTH of the screen
-WINDOW_SIZE = [697, 497]
-screen = pygame.display.set_mode(WINDOW_SIZE)
-
-# Set title of screen
-pygame.display.set_caption("Array Backed Grid")
-
-# Loop until the user clicks the close button.
-done = False
-current_click = 0
-# Used to manage how fast the screen updates
-clock = pygame.time.Clock()
-bfs_input =[-1, -1]
-updated_bfs = False
-# -------- Main Program Loop -----------
+done = False  # Will be used to end while loop when program is finished
+current_click = 0  # How many times user has clicked mouse
+clock = pygame.time.Clock()  # How fast the screen will refresh (set to 144hz later down)
+bfs_input =[-1, -1]  # Creating arbitrary values for the Breadth First Search function
+# Main loop: Checks user input to do BFS or exit program
 while not done:
     for event in pygame.event.get():  # User did something
-        if event.type == pygame.QUIT:  # If user clicked close
-            done = True  # Flag that we are done so we exit this loop
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.QUIT:  # If user clicked close, we say done = True, and close loop
+            done = True
+        elif event.type == pygame.MOUSEBUTTONDOWN:  # When user clicks something in program
 
             # User clicks the mouse. Get the position
             pos = pygame.mouse.get_pos()
