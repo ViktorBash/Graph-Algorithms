@@ -7,7 +7,7 @@ PyGame - GUI to store grid and user interface
 """
 
 import pygame
-import time
+from graph_algorithms import bfs_shortest_path
 
 
 # Creates graph for 1-256 numbers. Is a dict with node keyed to a list of it's neighbors
@@ -46,127 +46,78 @@ def create_grid():
 
 grid = create_grid()
 
-
 # Setup for PyGame
 BLACK = (0, 0, 0)  # For background/margin
 WHITE = (255, 255, 255)  # All cells are white at the start
-GREEN = (0, 255, 0)  #
-RED = (255, 0, 0)
+GREEN = (50, 168, 82)  # Cells that are part of the path are Green
 WIDTH = 30  # Width of cell
 HEIGHT = 30  # Height of cell
 MARGIN = 1  # Margin between each cell
 
-pygame.init()  # Initialize Pygame
+pygame.init()  # Initialize PyGame
 WINDOW_SIZE = [697, 497]  # Set dimensions of screen
 screen = pygame.display.set_mode(WINDOW_SIZE)  # Create screen with dimensions
-pygame.display.set_caption("Array Backed Grid")  # Set title of window
+pygame.display.set_caption("Breadth First Search")  # Set title of window
 
 done = False  # Will be used to end while loop when program is finished
 current_click = 0  # How many times user has clicked mouse
 clock = pygame.time.Clock()  # How fast the screen will refresh (set to 144hz later down)
-bfs_input =[-1, -1]  # Creating arbitrary values for the Breadth First Search function
+bfs_input = [-1, -1]  # Creating arbitrary values for the Breadth First Search function
 # Main loop: Checks user input to do BFS or exit program
 while not done:
     for event in pygame.event.get():  # User did something
         if event.type == pygame.QUIT:  # If user clicked close, we say done = True, and close loop
             done = True
         elif event.type == pygame.MOUSEBUTTONDOWN:  # When user clicks something in program
-
-            # User clicks the mouse. Get the position
-            pos = pygame.mouse.get_pos()
+            pos = pygame.mouse.get_pos()  # User clicks the mouse. Get the position
             # Change the x/y screen coordinates to grid coordinates
             column = pos[0] // (WIDTH + MARGIN)
             row = pos[1] // (HEIGHT + MARGIN)
-            # Set that location to one
-            # grid[row][column] = 1
-            try:
-
+            try:  # If this executes, then we clicked in the grid and not outside of it
                 if current_click == 0:  # Change to green (start node)
                     grid[row][column] = "GREEN"
-
+                    # Logic to get coordinates into format for breadth first search input
                     if row == 0:
                         bfs_input[0] = column + 1
                     else:
                         bfs_input[0] = row * 16 + (column + 1)
-                        # print(row)
-                        # print(column)
-                        # print(bfs_input[0])
-
                     current_click += 1
-                elif current_click == 1:  # Change to red (end node)
-                    grid[row][column] = "RED"
+
+                elif current_click == 1:  # Change to green (end node)
+                    grid[row][column] = "GREEN"
+                    # Logic to get coordinates into format for breadth first search input
                     if row == 0:
                         bfs_input[1] = column + 1
                     else:
                         bfs_input[1] = row * 16 + (column + 1)
                     current_click += 1
-                # print("Click ", pos, "Grid coordinates: ", row, column)
-                def bfs_shortest_path(graph, start, goal):
-                    # keep track of explored nodes
-                    explored = []
-                    # keep track of all the paths to be checked
-                    queue = [[start]]
 
-                    # return path if start is goal
-                    if start == goal:
-                        print(f"START {start}")
-                        return [start]
-                        # return "That was easy! Start = goal"
-
-                    # keeps looping until all possible paths have been checked
-                    while queue:
-                        # pop the first path from the queue
-                        path = queue.pop(0)
-                        # get the last node from the path
-                        node = path[-1]
-                        if node not in explored:
-                            neighbours = graph[node]
-                            # go through all neighbour nodes, construct a new path and
-                            # push it into the queue
-                            for neighbour in neighbours:
-                                new_path = list(path)
-                                new_path.append(neighbour)
-                                queue.append(new_path)
-                                # return path if neighbour is goal
-                                if neighbour == goal:
-                                    return new_path
-
-                            # mark node as explored
-                            explored.append(node)
-
-                    # in case there's no path between the 2 nodes
-                    return "So sorry, but a connecting path doesn't exist :("
-
-                if current_click == 2:
-                    print(f"Input {bfs_input}")
-                    print(f"Shortest Path{bfs_shortest_path(graph, bfs_input[0], bfs_input[1])}")  # returns ['G', 'C', 'A', 'B', 'D']
-                    path = bfs_shortest_path(graph, bfs_input[0], bfs_input[1])
-                    # Path is the list containing path from start to end ^
-                    current_click += 1
-
+                if current_click == 2:  # When the end node is selected, (run the algorithm)
+                    path = bfs_shortest_path(graph, bfs_input[0], bfs_input[1])  # Call BFS from other script import
+                    # Path is the list containing nodes from start to end
+                    current_click = 0
                     for i in range(len(path)):
                         rows = 0
                         while path[i] - 16 > 0:
                             path[i] -= 16
                             rows += 1
                         path[i] -= 1
-                        print(f"row: {rows} num: {path[i]}")
-                        grid[rows][path[i]] = "RED"
+                        # print(f"row: {rows} num: {path[i]}")
+                        grid[rows][path[i]] = "GREEN"
                         updated_bfs = True
-            except IndexError:
+
+            except IndexError:  # We clicked out of the grid
                 print("Grid not clicked")
 
     # Set the screen background
     screen.fill(BLACK)
 
-    # Draw the grid
+    # Draw the grid, (stays updated)
     for row in range(16):
         for column in range(16):
             color = WHITE
             if grid[row][column] == "GREEN":
                 color = GREEN
-            elif grid[row][column] == "RED":
-                color = RED
             pygame.draw.rect(screen,
                              color,
                              [(MARGIN + WIDTH) * column + MARGIN,
@@ -174,10 +125,7 @@ while not done:
                               WIDTH,
                               HEIGHT])
 
-    # Limit to 144 frames per second
-    clock.tick(144)
-
-    # Go ahead and update the screen with what we've drawn.
-    pygame.display.flip()
+    clock.tick(144)  # Limit to 144 frames per second
+    pygame.display.flip()  # Update screen
 
 pygame.quit()  # Exit program
